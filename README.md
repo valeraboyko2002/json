@@ -1,6 +1,5 @@
 # 🚀 JSON Parser - Собственная реализация
 
-<<<<<<< HEAD
 [![Python CI](https://github.com/valeraboyko2002/json/actions/workflows/python-ci.yml/badge.svg)](https://github.com/valeraboyko2002/json/actions)
 [![codecov](https://codecov.io/gh/valeraboyko2002/json/branch/main/graph/badge.svg)](https://codecov.io/gh/valeraboyko2002/json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
