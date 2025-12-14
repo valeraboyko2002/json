@@ -1,10 +1,12 @@
+from .exceptions import JSONSyntaxError, JSONEncodingError
+
 class JSONLexer:
     """Лексер для токенизации JSON-строк."""
 
-    def __init__(self,text):
+    def __init__(self, text):
         self.text = text
         self.position = 0
-        self.current_char = self.text[self.position] if self.text else None
+        self.current_char = self.text[self.position] if text and len(text) > 0 else None
 
     def advance(self):
         """Перемещает указатель на следующий символ в тексте."""
@@ -21,7 +23,6 @@ class JSONLexer:
     
     def scan_string(self):
         """Сканирует строковый литерал JSON."""
-
         result = ''
         self.advance()  # Пропускаем начальную кавычку
 
@@ -31,13 +32,13 @@ class JSONLexer:
 
             if self.current_char == '\\':
                 self.advance()
-                result.append(self._parse_escape_sequence())
+                result += self._parse_escape_sequence()
             else:
-                result.append(self.current_char)
+                result += self.current_char
                 self.advance()
         
         self.advance()  # Пропускаем конечную кавычку
-        return ''.join(result)
+        return result
     
     def _parse_escape_sequence(self):
         """Парсит escape-последовательности в строках JSON."""
@@ -53,26 +54,30 @@ class JSONLexer:
         }
 
         if self.current_char in escape_map:
-            return escape_map[self.current_char]
+            char = escape_map[self.current_char]
+            self.advance()
+            return char
         elif self.current_char == 'u':
-            hex_digits = ''.join([self._next_chair() for _ in range(4)])
+            hex_digits = ''
+            for _ in range(4):
+                self.advance()
+                if self.current_char is None:
+                    raise JSONSyntaxError("Неожиданный конец строки в Unicode escape", self.position)
+                hex_digits += self.current_char
+            
+            self.advance()
             try:
                 return chr(int(hex_digits, 16))
             except ValueError:
                 raise JSONEncodingError(f"Некорректная Unicode escape-последовательность: \\u{hex_digits}")
+        
         raise JSONEncodingError(f"Недопустимая escape последовательность: \\{self.current_char}")
-
-    def _next_chair(self):
-        """Возвращает следующий символ и продвигает указатель."""
-        self.advance()
-        if self.current_char is None:
-            raise JSONSyntaxError("Неожиданный конец строки при разборе escape-последовательности", self.position)
-        return self.current_char 
 
     def scan_number(self):
         """Сканировать число"""
         start_pos = self.position
-# знак
+        
+        # знак
         if self.current_char == '-':
             self.advance()
 
@@ -82,8 +87,8 @@ class JSONLexer:
         elif self.current_char and self.current_char.isdigit():
             while self.current_char and self.current_char.isdigit():
                 self.advance()
-            else:
-                return None
+        else:
+            return None
         
         # дробная часть
         if self.current_char == '.':
@@ -110,54 +115,53 @@ class JSONLexer:
             return int(number_str)
         except ValueError:
             raise JSONSyntaxError(f"Некорректный формат числа: {number_str}", start_pos)
-        
-        
-        
-        def get_next_token(self):
-            """Возвращает следующий токен из входного текста."""
-            self.skip_whitespace()
+    
+    def get_next_token(self):
+        """Возвращает следующий токен из входного текста."""
+        self.skip_whitespace()
 
-            if self.current_char is None:
-                return None
+        if self.current_char is None:
+            return None
+    
+        # Строки
+        if self.current_char == '"':
+            return ('STRING', self.scan_string())
         
-            # Строки
-            if self.current_char == '"':
-                return ('STRING', self.scan_string())
-            
-            # Числа
-            number = self.scan_number()
-            if number is not None:
-                return ('NUMBER', number)
-            
-            # Ключевые слова 
-            if self.current_chat.isalpha():
-                start_pos = self.position
-                while self.current_char and self.current_char.isaplha():
-                    self.advance()
-                keyword = self.text[start_pos:self.position]
+        # Числа
+        number = self.scan_number()
+        if number is not None:
+            return ('NUMBER', number)
+        
+        # Ключевые слова 
+        if self.current_char and self.current_char.isalpha():
+            start_pos = self.position
+            while self.current_char and self.current_char.isalpha():
+                self.advance()
+            keyword = self.text[start_pos:self.position]
 
-                if keyword == 'true':
-                    return ('TRUE', True)
-                elif keyword == 'false':
-                    return ('FALSE', False)
-                elif keyword == 'null':
-                    return ('NULL', None)
-                else:
-                    raise JSONSyntaxError(f"Неизвестное ключевое слово: {keyword}", start_pos)
-            
-            # Символы пунктуации
-            char = self.current_char
-            self.advance()
+            if keyword == 'true':
+                return ('TRUE', True)
+            elif keyword == 'false':
+                return ('FALSE', False)
+            elif keyword == 'null':
+                return ('NULL', None)
+            else:
+                raise JSONSyntaxError(f"Неизвестное ключевое слово: {keyword}", start_pos)
+        
+        # Символы пунктуации
+        char = self.current_char
+        self.advance()
 
-            single_chars = {
-                '{': 'LBRACE',
-                '}': 'RBRACE',
-                '[': 'LBRACKET',
-                ']': 'RBRACKET',
-                ',': 'COMMA',
-                ':': 'COLON'
-            }
-            if char in single_chars:
-                return (single_chars[char], char)
-            
-            raise JSONSyntaxError(f"Недопустимый символ: '{char}'", self.position - 1, char)    
+        single_chars = {
+            '{': 'LBRACE',
+            '}': 'RBRACE',
+            '[': 'LBRACKET',
+            ']': 'RBRACKET',
+            ',': 'COMMA',
+            ':': 'COLON'
+        }
+        
+        if char in single_chars:
+            return (single_chars[char], char)
+        
+        raise JSONSyntaxError(f"Недопустимый символ: '{char}'", self.position - 1, char)
