@@ -1,7 +1,5 @@
 # 🚀 JSON Parser - Собственная реализация
 
-[![Python CI](https://github.com/valeraboyko2002/json/actions/workflows/python-ci.yml/badge.svg)](https://github.com/valeraboyko2002/json/actions)
-[![codecov](https://codecov.io/gh/valeraboyko2002/json/branch/main/graph/badge.svg)](https://codecov.io/gh/valeraboyko2002/json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/)
 
@@ -19,13 +17,8 @@
 ## 📦 Установка
 
 ```bash
-<<<<<<< HEAD
 git clone https://github.com/valeraboyko2002/json.git
 cd json
-=======
-git clone https://github.com/yourusername/json-parser.git
-cd json-parser
->>>>>>> 55fc41bdd3e63d11c19953b9feebb9ff709f3e57
 pip install -e .
 ```
 
@@ -146,14 +139,7 @@ MIT License - смотрите файл [LICENSE](LICENSE)
 
 ## 📞 Контакты
 
-Валерий Бойко- [@litqx](https://t.me/litqx)
-<<<<<<< HEAD
-
-=======
-[valera55500@outlook.com](valera55500@outlook.com)
-
-Ссылка на проект: [https://github.com/yourusername/json-parser](https://github.com/yourusername/json-parser)
->>>>>>> 55fc41bdd3e63d11c19953b9feebb9ff709f3e57
+Валерий Бойко - [@litqx](https://t.me/litqx) - [valera55500@outlook.com](mailto:valera55500@outlook.com)
 
 ---
 
